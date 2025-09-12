@@ -1,5 +1,5 @@
-import { generateToken } from "../lib/utils";
-import User from "../models/User";
+import { generateToken } from "../lib/utils.js";
+import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
@@ -28,7 +28,12 @@ export const signup = async (req, res) => {
         //jwt token for authentication
         const token = generateToken(newUser._id);
         
-        res.json({success: true, userData: newUser, token, message: "Account created successfully"}); //returning success if user created
+        res.json({
+             success: true,
+             userData: {...newUser._doc, password: undefined}, 
+             token, 
+             message: "Account created successfully"
+        }); //returning success if user created
 
     } catch (error) {
         console.log(error.message);
@@ -51,7 +56,7 @@ export const login = async (req, res) => {
         compare(password, userData.password);
         
         if(!isPasswordCorrect){
-            res.json({success: false, message: "Invalid credentials"});
+            return res.json({success: false, message: "Invalid credentials"});
         }
 
         const token = generateToken(userData._id);

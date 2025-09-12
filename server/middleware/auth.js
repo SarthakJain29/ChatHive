@@ -1,11 +1,19 @@
-import { jwt } from 'jsonwebtoken';
-import User from '../models/User';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 //middleware to protect routes
 export const protectRoute = async (req, res, next) =>{
     try {
-        const token = req.headers.token;
+        // const token = req.headers.token;
+        // if (!token) {
+        //     return res.status(401).json({ success: false, message: "No token provided" });
+        // }
+        const authHeader = req.headers.authorization;
+            if (!authHeader || !authHeader.startsWith("Bearer ")) {
+                return res.status(401).json({ success: false, message: "No token provided" });
+            }
 
+        const token = authHeader.split(" ")[1]; // extract token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);  //decoding the token
 
         const user = await User.findById(decoded.userId).select("-password");  //removing password from userdata

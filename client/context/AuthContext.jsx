@@ -30,12 +30,12 @@ export const AuthProvider = ({children}) => {
     //Login function to handle user auth and socket connection
     const login = async (state, credentials) => {
         try {
-            const {data} = await axios.post(`/api/auth/${state}`, credentials) // for calling both login or signup
+            const {data} = await axios.post(`/api/auth/${state}`, credentials) // for calling both login or signup api
 
             if(data.success){
                 setAuthUser(data.userData);
                 connectSocket(data.userData);
-                axios.defaults.headers.common["token"] = data.token;
+                axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
                 setToken(data.token);
                 localStorage.setItem("token", data.token);
                 toast.success(data.message);
@@ -53,7 +53,7 @@ export const AuthProvider = ({children}) => {
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
-        axios.defaults.headers.common["token"] = null;
+        axios.defaults.headers.common["Authorization"] = null;
         toast.success("Logged out successfully");
         socket.disconnect();
     }
@@ -89,16 +89,21 @@ export const AuthProvider = ({children}) => {
 
     useEffect(()=>{
         if(token){
-            axios.defaults.headers.common["token"] = token; //adding token to all api requests made using axios
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; //adding token to all api requests made using axios
+            console.log("Set axios Authorization:", axios.defaults.headers.common["Authorization"]);
+            checkAuth();
         }
-        checkAuth(); //this need to run everytime we open the webpage
-    }, [])
+        //checkAuth(); //this need to run everytime we open the webpage
+    }, [token])
 
     const value = {
         axios,
         authUser,
         onlineUsers,
         socket,
+        login,
+        logout,
+        updateProfile,
     }
 
     return (
