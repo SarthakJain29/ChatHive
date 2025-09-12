@@ -10,13 +10,19 @@ const Sidebar = () => {
 
     const {logout, onlineUsers} = useContext(AuthContext);
 
-    const [input, setInput] = useState(false); //input for search user field
+    const [input, setInput] = useState(''); //input for search user field
 
     const navigate = useNavigate();
 
-    const filteredUsers = input ? users.filter((user) => {
-        user.fullName.toLowerCase().include(input.toLowerCase())
-    }) : users; //filtering users for search feature
+    const filteredUsers = input
+        ? users.filter((user) =>
+            user.fullName.toLowerCase().includes(input.toLowerCase())
+            )
+        : users; //filtering users for search feature
+    
+    useEffect(() => {
+        getUsers();
+    }, []);
 
     useEffect(()=>{
         getUsers()

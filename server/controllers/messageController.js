@@ -5,26 +5,34 @@ import { io, userSocketMap } from "../server.js";
 
 //get all users except logged in user
 export const getUsersForSidebar = async (req, res) => {
-    try {
-        const userId = req.user._id;
-        const filteredUsers = await User.find({_id: {$ne: userId}}).select("-password") //displaying all users in leftbar except us
+  try {
+    const userId = req.user._id;
+    const filteredUsers = await User.find({ _id: { $ne: userId } }).select("-password");
 
-        //count number of unseen messages
-        const unseenMessages = {};
-        const promises = filteredUsers.map(async (user) => {
-            const messages = await Message.find({senderId: user._id, receiverId: userId, seen: false}) //getting unseen messages from message db
-            if(messages.length > 0){
-                unseenMessages[user._id] = messages.length; //no of unread msgs for each user
-            }
+    // count number of unseen messages
+    const unseenMessages = {};
 
-            await Promise.all(promises);
-            res.json({success: true, users: filteredUsers, unseenMessages});
-        })
-    } catch (error) {
-        console.log(error.message);
-        res.json({success: true, message: error.message});
-    }
-}
+    const promises = filteredUsers.map(async (user) => {
+      const messages = await Message.find({
+        senderId: user._id,
+        receiverId: userId,
+        seen: false
+      });
+
+      if (messages.length > 0) {
+        unseenMessages[user._id] = messages.length;
+      }
+    });
+
+    await Promise.all(promises); // wait for all message lookups
+
+    res.json({ success: true, users: filteredUsers, unseenMessages });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 
 
 //get all messages for selected user
@@ -63,7 +71,7 @@ export const markMessageAsSeen = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const {text, image} = req.body;
-        const {receiverId} = req.params.id;
+        const receiverId = req.params.id;
         const senderId = req.user._id; 
 
         let imageUrl;

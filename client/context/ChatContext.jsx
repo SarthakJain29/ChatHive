@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import toast from "react-hot-toast";
 
 //for storing chat data, sidebar chats, messages
-export const ChatContext = createContext;
+export const ChatContext = createContext();
 
 export const ChatProvider = ({children}) => {
 
@@ -29,7 +30,7 @@ export const ChatProvider = ({children}) => {
     //function to get messages for selected user
     const getMessages = async (userId) => {
         try {
-            const {data} = await axios.get(`/api/messages/${userId};`)
+            const {data} = await axios.get(`/api/messages/${userId}`);
             if(data.success){
                 setMessages(data.messages);
             }
@@ -41,7 +42,10 @@ export const ChatProvider = ({children}) => {
     //function to send message to selected user
     const sendMessage = async (messageData) => {
         try {
-            const {data} = axios.post(`/api/messages/send/${selectedUser._id}`, messageData);
+            const { data } = await axios.post(`/api/messages/send/${selectedUser._id}`, {
+                ...messageData,
+                receiverId: selectedUser._id,
+            });
             if(data.success){
                 setMessages((prevMessages)=> [...prevMessages, data.newMessage])
             }else{
@@ -92,8 +96,8 @@ export const ChatProvider = ({children}) => {
     }
 
     return (
-        <ChatContext.provider value = {value}>
+        <ChatContext.Provider value = {value}>
             {children}
-        </ChatContext.provider>
+        </ChatContext.Provider>
     )
 }
