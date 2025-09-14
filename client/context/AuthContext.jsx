@@ -90,7 +90,6 @@ export const AuthProvider = ({children}) => {
     useEffect(()=>{
         if(token){
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; //adding token to all api requests made using axios
-            console.log("Set axios Authorization:", axios.defaults.headers.common["Authorization"]);
             checkAuth();
         }
         //checkAuth(); //this need to run everytime we open the webpage

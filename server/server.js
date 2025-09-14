@@ -12,7 +12,7 @@ import {Server} from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = ["http://localhost:5173", "https://quick-chat-hive.vercel.app/"];
+const allowedOrigins = ["http://localhost:5173", "https://quick-chat-hive.vercel.app"];
 
 //initialize socket.io server
 export const io = new Server(server, {
