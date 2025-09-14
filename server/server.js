@@ -6,15 +6,20 @@ import { connectDB } from "./lib/db.js";
 import userRouter from "./routes/userRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
 import {Server} from "socket.io";
-import { log } from "console";
+
 
 //creating express app and http server
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = ["http://localhost:5173", "https://quick-chat-hive.vercel.app/"];
+
 //initialize socket.io server
 export const io = new Server(server, {
-    cors: {origin: "*"} //allowing every origin
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
 })
 
 //store online users
@@ -39,7 +44,12 @@ io.on("connection", (socket) => {
 
 //middlware
 app.use(express.json({limit: "4mb"})); //for json parsing
-app.use(cors()) //for cross origin
+
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+})) //for cross origin
 
 //Routes setup
 app.use("/api/status", (req,res) => {
